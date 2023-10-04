@@ -1,0 +1,36 @@
+{
+    "name_app":"My Api Gateway",
+    "auth":true,
+    "debug":false,
+    "app_env":"local",
+    "ttl":300,
+    "services":[
+        {
+            "prefix":"/service-users",
+            "base_url":"https://jsonplaceholder.typicode.com",
+            "endpoints":[
+                {
+                    "path":"/",
+                    "destination":"/users",
+                    "method":"GET"
+                },
+                {
+                    "path":"/:id",
+                    "destination":"/users",
+                    "method":"GET"
+                }
+            ]
+        },
+        {
+            "prefix":"/service-posts",
+            "base_url":"https://jsonplaceholder.typicode.com",
+            "endpoints":[
+                {
+                    "path":"/",
+                    "destination":"/posts",
+                    "method":"GET"
+                }
+            ]
+        }
+    ]
+}
