@@ -1,9 +1,9 @@
 {
-    "name_app":"My Api Gateway",
+    "name_app":"My Api Gateway 2",
     "auth":true,
     "debug":false,
     "app_env":"local",
-    "ttl":300,
+    "ttl":0,
     "services":[
         {
             "prefix":"/service-users",
@@ -12,7 +12,21 @@
                 {
                     "path":"/",
                     "destination":"/users",
-                    "method":"GET"
+                    "method":"GET",
+                    "request":{},
+                    "response":{
+                        "headers":{
+                            "allow":[],
+                            "deny":[]
+                        },
+                        "body":{
+                            "allow":[],
+                            "deny":[]
+                        },
+                        "mapping":{
+
+                        }
+                    }
                 },
                 {
                     "path":"/:id",

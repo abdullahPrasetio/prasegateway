@@ -19,16 +19,6 @@ var server *http.Server
 
 func main() {
 
-	// var myConfig entity.MyConfig
-	// file, err := os.ReadFile("prase.json")
-	// if err != nil {
-	// 	log.Fatal(err)
-	// }
-
-	// if err := json.Unmarshal(file, &myConfig); err != nil {
-	// 	log.Fatal(err)
-	// }
-
 	myConfig := config.GetMyConfig()
 
 	router := routers.Setup(myConfig)
@@ -48,7 +38,6 @@ func main() {
 
 	go func() {
 
-		fmt.Println("myconfig", myConfig)
 		fmt.Println("Server run in url : http://localhost:" + port)
 		if err := srv.ListenAndServe(); err != nil {
 			fmt.Println("panic", err)

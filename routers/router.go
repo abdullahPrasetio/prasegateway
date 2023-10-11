@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"plugin"
 	"strings"
 	"time"
 
@@ -20,30 +19,48 @@ type MyPlugin interface {
 
 func Setup(myConfig entity.MyConfig) *gin.Engine {
 	r := gin.Default()
+	r.Use(func(c *gin.Context) {
+		ifNoneMatchHeader := c.Request.Header.Get("If-None-Match")
+
+		// Lakukan validasi sesuai kebutuhan Anda
+		// Misalnya, Anda dapat memeriksa apakah ETag yang diberikan sama dengan versi terbaru dari sumber daya
+		// Jika sama, Anda dapat mengirimkan respons StatusNotModified (HTTP 304)
+		c.Request.Header.Add("If-None-Match", "")
+		// Simulasi validasi ETag
+		if ifNoneMatchHeader == "12345" {
+			c.Status(http.StatusNotModified)
+			c.Abort() // Abort middleware agar endpoint tidak dijalankan
+			return
+		}
+
+		fmt.Println("masuk sini", ifNoneMatchHeader)
+		c.Next()
+	})
+	r.Use(gin.Recovery())
 
 	// Memuat plugin dari file yang sudah dikompilasi
-	p, err := plugin.Open("plugins/correlation_id_plugin.so")
-	if err != nil {
-		fmt.Println("Error loading plugin:", err)
+	// p, err := plugin.Open("plugins/correlation_id_plugin.so")
+	// if err != nil {
+	// 	fmt.Println("Error loading plugin:", err)
 
-	}
+	// }
 
-	// Mencari simbol yang mengimplementasikan MyPlugin
-	symbol, err := p.Lookup("ExportedPlugin")
-	if err != nil {
-		fmt.Println("Error looking up symbol:", err)
+	// // Mencari simbol yang mengimplementasikan MyPlugin
+	// symbol, err := p.Lookup("ExportedPlugin")
+	// if err != nil {
+	// 	fmt.Println("Error looking up symbol:", err)
 
-	}
+	// }
 
-	// Mencast simbol menjadi MyPlugin
-	myPlugin, ok := symbol.(MyPlugin)
-	if !ok {
-		fmt.Println("Invalid plugin format")
+	// // Mencast simbol menjadi MyPlugin
+	// myPlugin, ok := symbol.(MyPlugin)
+	// if !ok {
+	// 	fmt.Println("Invalid plugin format")
 
-	}
+	// }
 
-	// Menerapkan plugin ke router Gin
-	myPlugin.Apply(r)
+	// // Menerapkan plugin ke router Gin
+	// myPlugin.Apply(r)
 
 	r.GET("healthz", func(ctx *gin.Context) {
 		ctx.JSON(http.StatusOK, utils.HealthCheckResponse(myConfig.NameApp))
@@ -68,15 +85,7 @@ func getMethodHandler(service entity.Service, endpoint entity.Endpoint, r *gin.E
 		rg.GET(endpoint.Path, func(c *gin.Context) {
 
 			startTime := time.Now() // Waktu awal
-			headers := []client.Headers{}
-			for key, values := range c.Request.Header {
-				for _, value := range values {
-					headers = append(headers, client.Headers{
-						Key:   key,
-						Value: value,
-					})
-				}
-			}
+			headers := client.GetHeaderRequest(c)
 			pathParts := strings.Split(c.Request.URL.Path, service.Prefix)
 			path := ""
 			// Ambil query parameter dari URL
@@ -102,15 +111,8 @@ func getMethodHandler(service entity.Service, endpoint entity.Endpoint, r *gin.E
 				c.JSON(http.StatusInternalServerError, gin.H{"error": "Gagal mengirim permintaan" + err.Error()})
 				return
 			}
-			for key, values := range respHeader {
-				for _, value := range values {
-					c.Header(key, value)
-				}
-			}
-
-			c.Header("Cache-Control", "no-cache")
-			// c.Header("If-None-Match")
-
+			client.SetHttpHeaderResponse(c, respHeader)
+			fmt.Println(endpoint)
 			c.Data(http.StatusOK, "application/json", responseBody)
 			// Handler Anda untuk metode GET di sini
 		})

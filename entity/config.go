@@ -17,7 +17,25 @@ type Service struct {
 }
 
 type Endpoint struct {
-	Destination string `json:"destination"`
-	Path        string `json:"path"`
-	Method      string `json:"method"`
+	Destination string          `json:"destination"`
+	Path        string          `json:"path"`
+	Method      string          `json:"method"`
+	Request     RequestResponse `json:"request"`
+	Response    RequestResponse `json:"response"`
+}
+
+type RequestResponse struct {
+	Headers Header            `json:"headers"`
+	Body    Body              `json:"body"`
+	Mapping map[string]string `json:"mapping"`
+}
+
+type Header struct {
+	Allow []string `json:"allow"`
+	Deny  []string `json:"deny"`
+}
+
+type Body struct {
+	Allow []string `json:"allow"`
+	Deny  []string `json:"deny"`
 }
