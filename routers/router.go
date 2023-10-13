@@ -112,9 +112,10 @@ func getMethodHandler(service entity.Service, endpoint entity.Endpoint, r *gin.E
 				return
 			}
 			client.SetHttpHeaderResponse(c, respHeader)
-			fmt.Println(endpoint)
-			c.Data(http.StatusOK, "application/json", responseBody)
-			// Handler Anda untuk metode GET di sini
+
+			bodyResponse := client.MappingWithByteReplace(c, responseBody, endpoint)
+
+			c.Data(http.StatusOK, "application/json", bodyResponse)
 		})
 	case "POST":
 		rg.POST(endpoint.Path, func(c *gin.Context) {

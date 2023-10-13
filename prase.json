@@ -24,14 +24,29 @@
                             "deny":[]
                         },
                         "mapping":{
-
+                            "name":"nama",
+                            "company":"perusahaan"
                         }
                     }
                 },
                 {
                     "path":"/:id",
                     "destination":"/users",
-                    "method":"GET"
+                    "method":"GET",
+                    "response":{
+                        "headers":{
+                            "allow":[],
+                            "deny":[]
+                        },
+                        "body":{
+                            "allow":[],
+                            "deny":[]
+                        },
+                        "mapping":{
+                            "name":"nama",
+                            "company":"perusahaan"
+                        }
+                    }
                 }
             ]
         },

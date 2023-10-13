@@ -21,6 +21,7 @@ import (
 
 	"github.com/abdullahPrasetio/prasegateway/config"
 	"github.com/abdullahPrasetio/prasegateway/log"
+	"github.com/abdullahPrasetio/prasegateway/utils"
 )
 
 type Headers struct {
@@ -44,20 +45,19 @@ func Client_Req(ctx context.Context, headers []Headers, uri string, method strin
 		return nil, nil, err
 	}
 
+	// fmt.Println("headers", headers)
+	headerDeny := []string{"Accept-Encoding"}
 	if headers == nil {
 		req.Header.Set("Content-Type", "application/json")
 	} else {
 		req.Header.Set("Content-Type", "application/json")
 		//header tambahan
 		for i := range headers {
-			req.Header[headers[i].Key] = []string{headers[i].Value}
+			if !utils.IsStringInSlice(headers[i].Key, headerDeny) {
+				req.Header[headers[i].Key] = []string{headers[i].Value}
+			}
 		}
 	}
-
-	// reqHeader, _ := json.Marshal(req.Header)
-	// log.LogDebug(refnum, "URL = "+uri)
-	// log.LogDebug(refnum, "request header = "+string(reqHeader))
-	// log.LogDebug(refnum, "request Body = "+readBodyString(bytes.NewReader(bodyRequest)))
 
 	resp, err := client.Do(req)
 	if err != nil {
@@ -82,8 +82,6 @@ func Client_Req(ctx context.Context, headers []Headers, uri string, method strin
 
 	log.LogDebug(refnum, "response header = "+string(respHeader))
 	log.LogDebug(refnum, "response body = "+string(body))
-
-	// logger.Info(string(body))
 
 	return body, resp.Header, nil
 }
