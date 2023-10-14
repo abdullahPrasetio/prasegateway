@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"plugin"
 	"strings"
 	"time"
 
@@ -39,28 +40,28 @@ func Setup(myConfig entity.MyConfig) *gin.Engine {
 	r.Use(gin.Recovery())
 
 	// Memuat plugin dari file yang sudah dikompilasi
-	// p, err := plugin.Open("plugins/correlation_id_plugin.so")
-	// if err != nil {
-	// 	fmt.Println("Error loading plugin:", err)
+	p, err := plugin.Open("plugins/correlation_id_plugin.so")
+	if err != nil {
+		fmt.Println("Error loading plugin:", err)
 
-	// }
+	}
 
-	// // Mencari simbol yang mengimplementasikan MyPlugin
-	// symbol, err := p.Lookup("ExportedPlugin")
-	// if err != nil {
-	// 	fmt.Println("Error looking up symbol:", err)
+	// Mencari simbol yang mengimplementasikan MyPlugin
+	symbol, err := p.Lookup("ExportedPlugin")
+	if err != nil {
+		fmt.Println("Error looking up symbol:", err)
 
-	// }
+	}
 
-	// // Mencast simbol menjadi MyPlugin
-	// myPlugin, ok := symbol.(MyPlugin)
-	// if !ok {
-	// 	fmt.Println("Invalid plugin format")
+	// Mencast simbol menjadi MyPlugin
+	myPlugin, ok := symbol.(MyPlugin)
+	if !ok {
+		fmt.Println("Invalid plugin format")
 
-	// }
+	}
 
-	// // Menerapkan plugin ke router Gin
-	// myPlugin.Apply(r)
+	// Menerapkan plugin ke router Gin
+	myPlugin.Apply(r)
 
 	r.GET("healthz", func(ctx *gin.Context) {
 		ctx.JSON(http.StatusOK, utils.HealthCheckResponse(myConfig.NameApp))
@@ -113,7 +114,10 @@ func getMethodHandler(service entity.Service, endpoint entity.Endpoint, r *gin.E
 			}
 			client.SetHttpHeaderResponse(c, respHeader)
 
-			bodyResponse := client.MappingWithByteReplace(c, responseBody, endpoint)
+			// bodyResponse := client.MappingWithByteReplace(c, responseBody, endpoint)
+			fmt.Println("body", string(responseBody))
+			bodyResponse := client.MappingNestedRecursive(responseBody, endpoint)
+			fmt.Println("body after", string(bodyResponse))
 
 			c.Data(http.StatusOK, "application/json", bodyResponse)
 		})

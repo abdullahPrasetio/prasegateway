@@ -3,7 +3,7 @@
     "auth":true,
     "debug":false,
     "app_env":"local",
-    "ttl":0,
+    "ttl":15,
     "services":[
         {
             "prefix":"/service-users",
@@ -44,7 +44,10 @@
                         },
                         "mapping":{
                             "name":"nama",
-                            "company":"perusahaan"
+                            "company.name":"perusahaan.nama",
+                            "id":"nik",
+                            "address.city":"address.kota",
+                            "address.geo.lat":"address.geo.latitude"
                         }
                     }
                 }
@@ -57,6 +60,33 @@
                 {
                     "path":"/",
                     "destination":"/posts",
+                    "method":"GET"
+                }
+            ]
+        },
+        {
+            "prefix":"/service-todos",
+            "base_url":"https://jsonplaceholder.typicode.com",
+            "endpoints":[
+                {
+                    "path":"/",
+                    "destination":"/todos",
+                    "method":"GET"
+                },
+                {
+                    "path":"/:id",
+                    "destination":"/todos",
+                    "method":"GET"
+                }
+            ]
+        },
+        {
+            "prefix":"/service-mockio",
+            "base_url":"https://mocki.io",
+            "endpoints":[
+                {
+                    "path":"/:id",
+                    "destination":"/v1",
                     "method":"GET"
                 }
             ]

@@ -27,7 +27,7 @@ func main() {
 	srv := &http.Server{
 		Addr: fmt.Sprintf("0.0.0.0:%s", port),
 		// Good practice to set timeouts to avoid Slowloris attacks.
-		WriteTimeout: 60 * time.Second,
+		WriteTimeout: 160 * time.Second,
 		ReadTimeout:  60 * time.Second,
 		Handler:      router,
 	}
