@@ -1,26 +1,79 @@
 package client
 
-func ProcessJSON(data map[string]interface{}, deny, allow []string) {
-	// Iterasi melalui elemen JSON
-	for key, value := range data {
-		if inSlice(key, deny) {
-			// Jika dalam daftar deny, hapus key tersebut
-			delete(data, key)
-		} else if len(allow) == 0 || inSlice(key, allow) {
-			// Jika dalam daftar allow (atau daftar allow kosong), biarkan key tersebut
-			if subdata, ok := value.(map[string]interface{}); ok {
-				// Jika value adalah objek map, proses rekursif
-				ProcessJSON(subdata, deny, allow)
-			}
-		}
-	}
-}
+import (
+	"encoding/json"
+	"strings"
+)
 
-func inSlice(needle string, haystack []string) bool {
-	for _, item := range haystack {
-		if item == needle {
-			return true
+// Fungsi untuk menghapus kunci dari data JSON berdasarkan deny dan allow
+// func FilterProcessJSON(jsonData *[]byte, deny []string, allow []string) {
+// 	var data interface{}
+// 	if err := json.Unmarshal(*jsonData, &data); err != nil {
+// 		panic(err)
+// 	}
+
+// 	filteredData := make(map[string]interface{})
+// 	switch obj := data.(type) {
+// 	case map[string]interface{}:
+// 		// Iterasi melalui array allow untuk memfilter data
+// 		for _, key := range allow {
+// 			parts := strings.Split(key, ".")
+// 			currentData := obj
+
+// 			for _, part := range parts[:len(parts)-1] {
+// 				value, ok := currentData[part]
+// 				if !ok {
+// 					break
+// 				}
+// 				currentData = value.(map[string]interface{})
+// 			}
+
+// 			// Jika key ditemukan, tambahkan ke hasil filter
+// 			lastPart := parts[len(parts)-1]
+// 			if value, ok := currentData[lastPart]; ok {
+// 				filteredData[lastPart] = value
+// 			}
+// 		}
+
+// 		// Mengganti data JSON dengan data yang telah diproses
+// 		*jsonData = []byte{}
+// 		if processedData, err := json.Marshal(filteredData); err != nil {
+// 			panic(err)
+// 		} else {
+// 			*jsonData = processedData
+// 		}
+// 	default:
+// 		return
+// 	}
+// }
+
+func FilterProcessJSON(jsonData *[]byte, deny []string, allow []string) {
+	var data map[string]interface{}
+	if err := json.Unmarshal(*jsonData, &data); err != nil {
+		panic(err)
+	}
+
+	// Memproses allow
+	for _, key := range allow {
+		keys := strings.Split(key, ".")
+		value, ok := getNestedFieldRecursive(data, keys)
+		if ok {
+			setNestedFieldRecursive(data, key, keys[len(keys)-1], value, keys)
 		}
 	}
-	return false
+
+	// Memproses deny (menghapus field yang tidak diizinkan)
+	for _, key := range deny {
+		keys := strings.Split(key, ".")
+		deleteNestedFieldRecursive(data, keys)
+	}
+
+	// Mengencode data yang telah diproses kembali ke JSON
+	processedData, err := json.Marshal(data)
+	if err != nil {
+		panic(err)
+	}
+
+	// Mengganti data JSON dengan data yang telah diproses
+	*jsonData = processedData
 }

@@ -120,11 +120,11 @@ func deleteNestedField(data map[string]interface{}, fieldPath string) {
 	}
 }
 
-func MappingNestedRecursive(jsonData []byte, endpoint entity.Endpoint) []byte {
+func MappingNestedRecursive(jsonData *[]byte, endpoint entity.Endpoint) {
 	var data interface{}
-	if err := json.Unmarshal(jsonData, &data); err != nil {
+	if err := json.Unmarshal(*jsonData, &data); err != nil {
 		fmt.Println("Error unmarshaling JSON:", err)
-		return jsonData
+		panic(err)
 	}
 
 	// Jalankan pemrosesan rekursif
@@ -133,10 +133,10 @@ func MappingNestedRecursive(jsonData []byte, endpoint entity.Endpoint) []byte {
 	modifiedJSON, err := json.Marshal(data)
 	if err != nil {
 		fmt.Println("Error marshaling JSON:", err)
-		return jsonData
+		panic(err)
 	}
 
-	return modifiedJSON
+	*jsonData = modifiedJSON
 }
 
 func modifyDataRecursively(data interface{}, mapping map[string]string) {

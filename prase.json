@@ -33,6 +33,7 @@
                     "path":"/:id",
                     "destination":"/users",
                     "method":"GET",
+                    "target":"",
                     "response":{
                         "headers":{
                             "allow":[],
@@ -44,10 +45,7 @@
                         },
                         "mapping":{
                             "name":"nama",
-                            "company.name":"perusahaan.nama",
-                            "id":"nik",
-                            "address.city":"address.kota",
-                            "address.geo.lat":"address.geo.latitude"
+                            "id":"nik"
                         }
                     }
                 }
