@@ -117,7 +117,7 @@ func getMethodHandler(service entity.Service, endpoint entity.Endpoint, r *gin.E
 			// bodyResponse := client.MappingWithByteReplace(c, responseBody, endpoint)
 			fmt.Println("body before", string(responseBody))
 			client.FilterProcessJSON(&responseBody, endpoint.Response.Body.Deny, endpoint.Response.Body.Allow)
-			// client.MappingNestedRecursive(&responseBody, endpoint)
+			client.MappingNestedRecursive(&responseBody, endpoint)
 			fmt.Println("body after", string(responseBody))
 			// bodyResponse = client.MappingNestedRecursive(bodyResponse, endpoint)
 
